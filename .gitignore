@@ -1,0 +1,9 @@
+
+datasets/test_clean.csv
+datasets/test_prep.csv
+datasets/test_text.txt
+datasets/test_variants.txt
+datasets/train_clean.csv
+datasets/train_prep.csv
+datasets/training_text.txt
+datasets/training_variants.txt
