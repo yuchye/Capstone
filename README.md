@@ -1,13 +1,11 @@
 # Capstone Project - Classifying clinically actionable genetic mutations
 
-<div class="alert alert-block alert-warning">
-<b>Things to discuss with Conor/TAs:</b>
+## Things to discuss with Conor/TAs
 
 - Need to deal with imbalanced classes?
 - Is it ok to create a validation dataset to check for overfitting?
 - What should my baseline model consist of?
 - What are the priority improvements I should try out over my baseline model?
-</div>
 
 ## Problem Statement
 
