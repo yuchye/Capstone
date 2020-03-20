@@ -62,6 +62,7 @@ My general approach is as follows:
       - Calculate score on testing dataset
     - Selection of baseline classifier
     - Evaluation of [FastBERT (Bidirectional Encoder Representations for Transformers)](https://medium.com/huggingface/introducing-fastbert-a-simple-deep-learning-library-for-bert-models-89ff763ad384)
+    - Evaluation of [BioBERT](https://arxiv.org/abs/1901.08746): a pre-trained biomedical language representation model for biomedical text mining
     - Selection of final classifier
 
 
