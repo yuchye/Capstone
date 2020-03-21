@@ -58,15 +58,15 @@ My general approach is as follows:
       - Use RandomizedSearchCV to find optimum parameters
       - Calculate accuracy scores on both training and validation datasets
       - Visualise one of the decision trees (using Graphviz)
-      - Calculate AUC score based on one-versus-one algorithm
-      - Calculate score on testing dataset
+      - Calculate AUC score (one-versus-one algorithm) on validation dataset
+      - Calculate sensitivity score on validation dataset
     - Evaluate Multinomial Logistic Regression Classifier
       - **Use StandardScaler on training dataset**
       - Use RandomizedSearchCV to find optimum parameters
       - Calculate accuracy scores on both training and validation datasets
       - Visualise coefficients
-      - Calculate AUC score based on one-versus-one algorithm
-      - Calculate score on testing dataset
+      - Calculate AUC score (one-versus-one algorithm) on validation dataset
+      - Calculate sensitivity score on validation dataset
     - Selection of baseline classifier
     - Evaluation of [FastBERT (Bidirectional Encoder Representations for Transformers)](https://medium.com/huggingface/introducing-fastbert-a-simple-deep-learning-library-for-bert-models-89ff763ad384)
     - Evaluation of [BioBERT](https://arxiv.org/abs/1901.08746): a pre-trained biomedical language representation model for biomedical text mining
