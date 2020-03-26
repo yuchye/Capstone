@@ -7,3 +7,13 @@ datasets/train_clean.csv
 datasets/train_prep.csv
 datasets/training_text.txt
 datasets/training_variants.txt
+assets/glove.6B.300d.txt
+assets/glove.6B.50d.txt
+assets/test_clean.csv
+assets/test_prep.csv
+assets/test_text.txt
+assets/test_variants.txt
+assets/train_clean.csv
+assets/train_prep.csv
+assets/training_text.txt
+assets/training_variants.txt
