@@ -17,3 +17,8 @@ assets/train_clean.csv
 assets/train_prep.csv
 assets/training_text.txt
 assets/training_variants.txt
+assets/cased_L-12_H-768_A-12/bert_config.json
+assets/cased_L-12_H-768_A-12/bert_model.ckpt.data-00000-of-00001
+assets/cased_L-12_H-768_A-12/bert_model.ckpt.index
+assets/cased_L-12_H-768_A-12/bert_model.ckpt.meta
+assets/cased_L-12_H-768_A-12/vocab.txt

@@ -1,12 +1,5 @@
 # Capstone Project - Classifying clinically actionable genetic mutations
 
-## Things to discuss with Conor/TAs
-
-- Need to deal with imbalanced classes?
-- Is it ok to create a validation dataset to check for overfitting?
-- What should my baseline model consist of?
-- What are the priority improvements I should try out over my baseline model?
-
 ## Problem Statement
 
 To build and train a classifier to propose the correct classification of genetic variations based on an expert-annotated knowledge base of cancer mutation annotations and related biomedical terms, so that clinical pathologists can spend less effort manually reviewing medical literature to make the classification.
