@@ -2,95 +2,126 @@
 
 ## Problem Statement
 
-To build and train a classifier to propose the correct classification of genetic variations based on an expert-annotated knowledge base of cancer mutation annotations and related biomedical terms, so that clinical pathologists can spend less effort manually reviewing medical literature to make the classification.
+To build and train a classifier to propose the correct classification of genetic variations based on an expert-annotated knowledge base of cancer mutation annotations, so that clinical pathologists can review the medical literature to make the classification, faster and with less effort.
 
-The classifier's performance will be measured by the best accuracy and One versus One (OVO) AUC scores, and the classifier accuracy should be at least 10% better than the baseline accuracy - the baseline accuracy being defined as the proportion of the majority variant class in the given training set.
+Fast and accurate classification of cancer mutation annotations can help to speed up diagnosis and identification of the correct treatment to deliver to affected patients.
 
-I aim to complete various milestones and deliverables as shown in the table below:
+The classifier's performance will be measured by the following:
+- The best balanced F1 score: this considers both the precision and recall, and is weighted by the number of true instances of each variation class to account for class imbalance.
+- The best balanced accuracy score: this metric caters for class imbalance and is the average of recall obtained on each variation class. This is especially important in our context, because we seek high recall (i.e. sensitivity) to ensure that we carry out the appropriate interventions in a timely manner, based on the  variation classification. The goal is to achieve a balanced accuracy score that is at least 10% better than the baseline accuracy, which is defined as the proportion of the majority variant class in the given training set.
 
-|Week|Target Milestone/Deliverables|
-|:-:|:--|
-|Week 7 (16 to 20 Mar)|Continue work on baseline model|
-|Week 8 (23 to 27 Mar)|Complete baseline model and make 1st submission to Kaggle|
-|Week 9 (30 Mar to 3 Apr)|Identify enhancements to be made to baseline model|
-|Week 10 (6 to 10 Apr)|Complete alternative model, make additional submissions to Kaggle and complete analyses|
-|Week 11 (13 to 17 Apr)|Complete slides and rehearse presentation|
-|Week 12 (20 to 24 Apr)|Contingency|
+---
 
-## Proposed Methods and Models
+## Executive Summary
 
-My general approach is as follows:
+Once sequenced, a cancer tumor can be found to have thousands of genetic mutations (or variations). The challenge is distinguishing the mutations that contribute to tumor growth versus those that do not. This interpretation of genetic mutations is currently done manually and is very time consuming. A clinical pathologist needs to manually review and classify every single genetic mutation based on evidence from text-based clinical literature. The goal of this capstone project is to develop a classifier that can help with automatic classification - this will speed up the classification process and lead to more timely interventions for cancer patients.
 
-1. Data Collection, Cleaning and EDA
+We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
 
-  - Data Collection: we import the Kaggle training and testing datasets.
-  - Data Cleaning: we deal with missing data in the imported datasets.
-  - Preliminary EDA: we perform some EDA on the following:
-    - Length of descriptive text for each variation
-    - Most frequently occurring genes, variations in the training dataset
-    - Frequency distribution of the classes of the variations (to detect imbalanced classes, if any)
+Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns. There was an attempt to identify closely correlated features that could be removed or combined with others, but unfortunately without success as such close correlations could not be found.
 
+For the baseline model, we generated weighted word counts using the scikit-learn TfidfVectorizer, and merged them with the one-hot encoded columns created earlier. We used Synthetic Minority Oversampling Technique (SMOTE) to perform selective oversampling to address the imbalanced classes to some extent, and subsequently scaled the data with MinMaxScaler to facilitate model fitting. Hyperparameter tuning was then performed to find the best classifier, which included a forward neural network, support vector machine, logistic regression, extra trees, ADABoost, K-nearest Neighbours, random forest, decision tree and multinomial Naive Bayes classifiers. The baseline model was chosen to be the Extra Trees Classifier as it had the highest balanced accuracy score on the validation dataset. It also achieved the aim of exceeding the baseline accuracy by at least 10%.
 
-2. Pre-processing and EDA
+We then explored various static word embeddings (vectors) as a potential alternative model -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. A combination of our own weighted Word2Vec vectors was chosen as it had the highest cross-validated accuracy score. Following the sample process to identify the baseline model, we used SMOTE, MinMaxScaler and hyperparameter tuning on the same set of candidate classifiers. The alternative model was chosen to be the Extra Trees Classifier as it once again had the highest balanced accuracy score on the validation dataset.
 
-  - Lemmatisation: **we stick to lemmatisation** and do not explore stemming, as we wish to use a corpus to match root forms of the words found in the descriptive text.
-  - EDA:
-    - WordCloud for descriptive text
-    - Histogram of 20 most frequent words in descriptive text
+The baseline model - while being very large (76k+ features) and requiring significantly more memory and processing power to analyse -- delivered the better overall balanced accuracy score compared to the alternative model. To its credit, the alternative model was 20 times smaller (about 4,400 features) and could still produce a reasonably close score compared to the baseline model.
 
+We made predictions using both the baseline and alternative model and submitted them to Kaggle to obtain the multi-loss function scores.
 
-3. Modelling
+---
 
-  - Split data into X and y datasets
-  - Creation of dummy columns
-  - Creation of (inner) training and validation datasets
-    - Validation dataset will be used to check for overfitting
-  - Tokenisation using CountVectorizer
-  - Evaluation of candidates for baseline classifier
-    - Evaluate Random Forest Classifer
-      - Use RandomizedSearchCV to find optimum parameters
-      - Calculate accuracy scores on both training and validation datasets
-      - Visualise one of the decision trees (using Graphviz)
-      - Calculate AUC score (one-versus-one algorithm) on validation dataset
-      - Calculate sensitivity score on validation dataset
-    - Evaluate Multinomial Logistic Regression Classifier
-      - **Use StandardScaler on training dataset**
-      - Use RandomizedSearchCV to find optimum parameters
-      - Calculate accuracy scores on both training and validation datasets
-      - Visualise coefficients
-      - Calculate AUC score (one-versus-one algorithm) on validation dataset
-      - Calculate sensitivity score on validation dataset
-    - Selection of baseline classifier
-    - Evaluation of [FastBERT (Bidirectional Encoder Representations for Transformers)](https://medium.com/huggingface/introducing-fastbert-a-simple-deep-learning-library-for-bert-models-89ff763ad384)
-    - Evaluation of [BioBERT](https://arxiv.org/abs/1901.08746): a pre-trained biomedical language representation model for biomedical text mining
-    - Selection of final classifier
+## Directory Structure
+```
+Capstone: Classifying clinically actionable genetic mutations
+|__ code
+|   |__ 01_Data_Cleaning_and_EDA.ipynb   
+|   |__ 02_Preprocessing_and_EDA.ipynb   
+|   |__ 03_Baseline_Model.ipynb
+|   |__ 04_Alternative_Model.ipynb
+|   |__ 05_Kaggle_Submission.ipynb
+|__ assets
+|   |__ glove.6B.50d.txt
+|   |__ glove.6B.300d.txt
+|   |__ sample_submission.csv
+|   |__ submission.csv
+|   |__ test_clean.csv
+|   |__ test_pred.csv
+|   |__ test_prep.csv
+|   |__ test_text.csv
+|   |__ test_variants.csv
+|   |__ train_clean.csv
+|   |__ train_prep.csv
+|   |__ training_text.txt
+|   |__ training_variants.txt
+|   |__ tree_0.dot
+|   |__ tree_0.png
+|   |__ tree_50.dot
+|   |__ tree_50.png
+|   |__ tree_99.dot
+|   |__ tree_99.png
+|   |__ workflow.jpg
+|   |__ tree_0.dot
+|__ scores
+|   |__ kaggle_score_alternative_20200406.jpg
+|   |__ kaggle_score_baseline_20200406.jpg
+|__ Capstone_Presentation.pdf
+|__ README.md
+```
+---
 
+## Data Cleaning and EDA
 
-4. Kaggle Submission
+The following are the findings from preliminary EDA:
+- The length of the descriptive text (in the training dataset) has a right-skewed distribution with mean of approx. 64,000 characters and a maximum length of approx. 526,000 characters
+- The top 3 mentioned genes are:
+  - BRCA1: BRCA1 is a human tumor suppressor gene and is responsible for repairing DNA. BRCA mutations increase the risk for breast cancer.
+  - TP53: The tumour protein 53 gene prevents cancer formation and functions as a tumour suppressor; there is some evidence (albeit controversial) that links TP53 mutations and cancer.
+  - EGFR: Mutations that lead to the overexpression of the Epidermal growth factor receptor (EGFR) protein have been associated iwth a number of cancers.
+- The top 3 mentioned variations are:
+  - Truncating mutations: a change in DNA that truncates (or shortens) a protein.
+  - Deletions: a mutation where a part of a chromosome or a sequence of DNA is left out during DNA replication.
+  - Amplification: a mutation that involves an increase in the number of copies of a gene; gene amplification is common in cancer cells.
+- WordCloud and Histogram of lemmatised word frequencies reveals that there are many "common" words that may need to be removed (i.e. treated as additional stopwords). The challenge is how to find an existing curated list of such words instead of spotting words in a haphazard manner.
 
-  - Using final classifier to classify testing dataset
-  - Formatting results for Kaggle submission
+---
+
+## Pre-processing
+
+<to be written>
+
+---
+
+## Baseline Model
+
+<to be written>
+
+---
+
+## Alternative Model
+
+<to be written>
+
+---
+
+## Conclusions and Recommendations
+
+<to be written>
+
+# Limitations
+
+<to be written>
+
+# Areas for further investigation
+
+<to be written>
+
+---
 
 ## Data Sources
 
-1. [Kaggle training datasets](https://www.kaggle.com/c/msk-redefining-cancer-treatment/data):
-    - "training_text": a double pipe (||) delimited file that contains 3,322 rows of clinical evidence (text) used to classify genetic mutations.
-    - "training_variants": a comma separated file containing 3,322 rows of descriptions of the genetic mutations used for training.
+Kaggle website (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data)
 
-
-2. [Kaggle testing datasets](https://www.kaggle.com/c/msk-redefining-cancer-treatment/data):
-    - "test_test": a double pipe (||) delimited file that contains 3,322 rows of clinical evidence (text) used to classify genetic mutations.
-    - "test_variants": a comma separated file containing 2,954 rows of descriptions of the genetic mutations used for testing.
-
-
-3. US National Centre for Biotechnology Information (NCBI) ClinVar [Entrez API](https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#web):
-    - Used to retrieve disease and severity information based on a given variant
-
-
-4. [Biomedical Entity Search Tool (BEST)](http://best.korea.ac.kr/)
-    - Used to find related biomedical terms (i.e. diseases, drugs, drug targets, transcription factors and miRNAs) related to specific genes and variants
-
-## Data Dictionary
+# Data Dictionary
 
 |Feature|Type|Dataset|Description|
 |---|---|---|---|
@@ -107,7 +138,7 @@ My general approach is as follows:
 |**Variation**|*object*|test_variants|The amino acid change for this mutation.|
 |**Class**|*int64*|test_variants|The class (1 to 9) this genetic mutation has been classified on.|
 
-## Risks & Assumptions of Data Sources
+# Risks & Assumptions of Data Sources
 
 - Risks:
     - The models that are created may be overfitted.
@@ -119,17 +150,3 @@ My general approach is as follows:
     - Normality:The errors between observed and predicted values (i.e., the residuals of the regression) should be normally distributed.
     - Equality of Variances: The errors should have roughly consistent pattern (i.e. there should be no disceranble relationshop between the independent features and the errors)
     - Independence: The independent features are independent of one another
-
-## Summary of Preliminary EDA
-
-The following are the findings from preliminary EDA:
-- The length of the descriptive text (in the training dataset) has a right-skewed distribution with mean of approx. 64,000 characters and a maximum length of approx. 526,000 characters
-- The top 3 mentioned genes are:
-  - BRCA1: BRCA1 is a human tumor suppressor gene and is responsible for repairing DNA. BRCA mutations increase the risk for breast cancer.
-  - TP53: The tumour protein 53 gene prevents cancer formation and functions as a tumour suppressor; there is some evidence (albeit controversial) that links TP53 mutations and cancer.
-  - EGFR: Mutations that lead to the overexpression of the Epidermal growth factor receptor (EGFR) protein have been associated iwth a number of cancers.
-- The top 3 mentioned variations are:
-  - Truncating mutations: a change in DNA that truncates (or shortens) a protein.
-  - Deletions: a mutation where a part of a chromosome or a sequence of DNA is left out during DNA replication.
-  - Amplification: a mutation that involves an increase in the number of copies of a gene; gene amplification is common in cancer cells.
-- WordCloud and Histogram of lemmatised word frequencies reveals that there are many "common" words that may need to be removed (i.e. treated as additional stopwords). The challenge is how to find an existing curated list of such words instead of spotting words in a haphazard manner.
