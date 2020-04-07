@@ -107,11 +107,11 @@ The following are the findings from preliminary EDA:
 
 <to be written>
 
-# Limitations
+### Limitations
 
 <to be written>
 
-# Areas for further investigation
+### Areas for further investigation
 
 <to be written>
 
@@ -121,7 +121,7 @@ The following are the findings from preliminary EDA:
 
 Kaggle website (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data)
 
-# Data Dictionary
+### Data Dictionary
 
 |Feature|Type|Dataset|Description|
 |---|---|---|---|
@@ -138,7 +138,7 @@ Kaggle website (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data)
 |**Variation**|*object*|test_variants|The amino acid change for this mutation.|
 |**Class**|*int64*|test_variants|The class (1 to 9) this genetic mutation has been classified on.|
 
-# Risks & Assumptions of Data Sources
+### Risks & Assumptions of Data Sources
 
 - Risks:
     - The models that are created may be overfitted.
