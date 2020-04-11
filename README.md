@@ -2,13 +2,14 @@
 
 ## Problem Statement
 
-To build and train a classifier to propose the correct classification of genetic variations based on an expert-annotated knowledge base of cancer mutation annotations, so that clinical pathologists can review the medical literature to make the classification, faster and with less effort.
+To build and train a classifier to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations, so that clinical pathologists can review the medical literature to make the classification, faster and with less effort.
 
 Fast and accurate classification of cancer mutation annotations can help to speed up diagnosis and identification of the correct treatment to deliver to affected patients.
 
 The classifier's performance will be measured by the following:
-- The best balanced F1 score: this considers both the precision and recall, and is weighted by the number of true instances of each variation class to account for class imbalance.
-- The best balanced accuracy score: this metric caters for class imbalance and is the average of recall obtained on each variation class. This is especially important in our context, because we seek high recall (i.e. sensitivity) to ensure that we carry out the appropriate interventions in a timely manner, based on the  variation classification. The goal is to achieve a balanced accuracy score that is at least 10% better than the baseline accuracy, which is defined as the proportion of the majority variant class in the given training set.
+- Balanced F1 score: this considers both the precision and recall, and is weighted by the number of true instances of each variation class to account for class imbalance.
+- Balanced accuracy score: this metric caters for class imbalance and is the average of recall obtained on each variation class. This is especially important in our context, because we seek high recall (i.e. sensitivity) to ensure that we carry out the appropriate interventions in a timely manner, based on the  variation classification. The goal is to achieve a balanced accuracy score that is at least 10% better than the baseline accuracy, which is defined as the proportion of the majority variant class in the given training set.
+- Micro-average Area under Curve (AUC): this metric looks at the average area under the Receiver Operating Characteristic (ROC) curve for each of the nine classes. The average is taken by the sum of counts to obtain cumulative metrics (true-positives, false-negatives, true-negatives and false-positives) across all classes, and then calculating the AUC.
 
 ---
 
@@ -18,15 +19,25 @@ Once sequenced, a cancer tumor can be found to have thousands of genetic mutatio
 
 We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
 
-Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns. There was an attempt to identify closely correlated features that could be removed or combined with others, but unfortunately without success as such close correlations could not be found.
+Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns. There was an attempt (at this stage) to identify closely correlated features that could be removed or combined with others, but unfortunately without success as such close correlations could not be found.
 
-For the baseline model, we generated weighted word counts using the scikit-learn TfidfVectorizer, and merged them with the one-hot encoded columns created earlier. We used Synthetic Minority Oversampling Technique (SMOTE) to perform selective oversampling to address the imbalanced classes to some extent, and subsequently scaled the data with MinMaxScaler to facilitate model fitting. Hyperparameter tuning was then performed to find the best classifier, which included a forward neural network, support vector machine, logistic regression, extra trees, ADABoost, K-nearest Neighbours, random forest, decision tree and multinomial Naive Bayes classifiers. The baseline model was chosen to be the Extra Trees Classifier as it had the highest balanced accuracy score on the validation dataset. It also achieved the aim of exceeding the baseline accuracy by at least 10%.
+For the **baseline model**, we first created (inner) training and validation datasets from Kaggle's training dataset, which left us with three datasets for training, validation and testing.
 
-We then explored various static word embeddings (vectors) as a potential alternative model -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. A combination of our own weighted Word2Vec vectors was chosen as it had the highest cross-validated accuracy score. Following the sample process to identify the baseline model, we used SMOTE, MinMaxScaler and hyperparameter tuning on the same set of candidate classifiers. The alternative model was chosen to be the Extra Trees Classifier as it once again had the highest balanced accuracy score on the validation dataset.
+For each of these three datasets, we then:
+1. Generated weighted word counts using the scikit-learn TfidfVectorizer, and merged them with the one-hot encoded columns created earlier.
+2. Used the Adaptive Sampling (ADASYN) technique to perform selective oversampling to address the imbalanced classes to some extent
+3. Scaled the data with StandardScaler to facilitate model fitting.
+4. Used Principle Component Analysis (PCA) to reduce the number of features from over 76,000 to about 4,400.
+
+Hyperparameter tuning (using a randomised search) was then performed to find the best classifier for the training dataset amongst a forward neural network, support vector machine, multinomial logistic regression, extra trees, ADABoost, K-nearest Neighbours, random forest, decision tree and multinomial Naive Bayes classifiers. The baseline model was chosen to be the Logistic Regression Classifier based on the weighted Tfidf word counts, as it had the highest balanced accuracy score of `0.533`, on the validation dataset. It also achieved the aim of exceeding the baseline accuracy of `0.287` by at least 10%.
+
+We then explored two static word embeddings (vectors) as a potential **alternative model** -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. Our own mean Word2Vec embeddings were chosen as it had the highest cross-validated accuracy score on the validation dataset. Following the same process above that was used to identify the baseline model, we eventually determined that the best alternative model was the Logistic Regression Classifier based on the mean Word2Vec word embeddings. It has a balanced accuracy score of `0.407`.
 
 The baseline model - while being very large (76k+ features) and requiring significantly more memory and processing power to analyse -- delivered the better overall balanced accuracy score compared to the alternative model. To its credit, the alternative model was 20 times smaller (about 4,400 features) and could still produce a reasonably close score compared to the baseline model.
 
-We made predictions using both the baseline and alternative model and submitted them to Kaggle to obtain the multi-loss function scores.
+Our final choice of model was the baseline model due to its superior scores, which included balanced accuracy and F1 scores, and micro-average AUC scores.
+
+For completeness, we made predictions using both the baseline and alternative model and submitted them to Kaggle to obtain the multi-loss function scores.
 
 ---
 
@@ -53,18 +64,15 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ train_prep.csv
 |   |__ training_text.txt
 |   |__ training_variants.txt
-|   |__ tree_0.dot
-|   |__ tree_0.png
-|   |__ tree_50.dot
-|   |__ tree_50.png
-|   |__ tree_99.dot
-|   |__ tree_99.png
 |   |__ workflow.jpg
-|   |__ tree_0.dot
-|__ scores
-|   |__ kaggle_score_alternative_20200406.jpg
-|   |__ kaggle_score_baseline_20200406.jpg
-|__ Capstone_Presentation.pdf
+|   |__ scores
+|       |__ kaggle_score_alternative_20200406.jpg
+|       |__ kaggle_score_baseline_20200406.jpg
+|__ check-ins
+|   |__ Part_1_Lightning_Talk.docx
+|   |__ Part_2_README.md
+|   |__ Part_3_Progress_Report.docx
+|__ Capstone_Presentation.pptx
 |__ README.md
 ```
 ---
@@ -76,7 +84,7 @@ The following are the findings from preliminary EDA:
 - The top 3 mentioned genes are:
   - BRCA1: BRCA1 is a human tumor suppressor gene and is responsible for repairing DNA. BRCA mutations increase the risk for breast cancer.
   - TP53: The tumour protein 53 gene prevents cancer formation and functions as a tumour suppressor; there is some evidence (albeit controversial) that links TP53 mutations and cancer.
-  - EGFR: Mutations that lead to the overexpression of the Epidermal growth factor receptor (EGFR) protein have been associated iwth a number of cancers.
+  - EGFR: Mutations that lead to the overexpression of the Epidermal growth factor receptor (EGFR) protein have been associated with a number of cancers.
 - The top 3 mentioned variations are:
   - Truncating mutations: a change in DNA that truncates (or shortens) a protein.
   - Deletions: a mutation where a part of a chromosome or a sequence of DNA is left out during DNA replication.
