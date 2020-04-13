@@ -19,23 +19,15 @@ Once sequenced, a cancer tumor can be found to have thousands of genetic mutatio
 
 We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
 
-Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns. There was an attempt (at this stage) to identify closely correlated features that could be removed or combined with others, but unfortunately without success as such close correlations could not be found.
+Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns.
 
-For the **baseline model**, we first created (inner) training and validation datasets from Kaggle's training dataset, which left us with three datasets for training, validation and testing.
+For the **baseline model**, we first created (inner) training and validation datasets from Kaggle's training dataset, which left us with three datasets for training, validation and testing. For each of these three datasets, we then generated weighted word counts, performed oversampling, data scaling and feature reduction through the use of Principle Component Analysis (PCA).
 
-For each of these three datasets, we then:
-1. Generated weighted word counts using the scikit-learn TfidfVectorizer, and merged them with the one-hot encoded columns created earlier.
-2. Used the Adaptive Sampling (ADASYN) technique to perform selective oversampling to address the imbalanced classes to some extent
-3. Scaled the data with StandardScaler to facilitate model fitting.
-4. Used Principle Component Analysis (PCA) to reduce the number of features from over 76,000 to about 4,400.
+Hyperparameter tuning (using a randomised search) was performed to find the best classifier for the training dataset amongst a number of candidate classifiers. The baseline model was chosen to be a Logistic Regression Classifier based on the weighted Tfidf word counts, as it had the highest balanced accuracy score of `0.540`, on the validation dataset. It also achieved the aim of exceeding the baseline accuracy of `0.287` by at least 10%.
 
-Hyperparameter tuning (using a randomised search) was then performed to find the best classifier for the training dataset amongst a forward neural network, support vector machine, multinomial logistic regression, extra trees, ADABoost, K-nearest Neighbours, random forest, decision tree and multinomial Naive Bayes classifiers. The baseline model was chosen to be the Logistic Regression Classifier based on the weighted Tfidf word counts, as it had the highest balanced accuracy score of `0.533`, on the validation dataset. It also achieved the aim of exceeding the baseline accuracy of `0.287` by at least 10%.
+We then explored two static word embeddings (vectors) as a potential **alternative model** -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. Our own mean Word2Vec embeddings were chosen as it had the highest cross-validated accuracy score on the validation dataset. Following the same process above that was used to identify the baseline model, we eventually determined that the best alternative model was a Forward Neural Network based on the mean Word2Vec word embeddings. It has a balanced accuracy score of `0.393`.
 
-We then explored two static word embeddings (vectors) as a potential **alternative model** -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. Our own mean Word2Vec embeddings were chosen as it had the highest cross-validated accuracy score on the validation dataset. Following the same process above that was used to identify the baseline model, we eventually determined that the best alternative model was the Logistic Regression Classifier based on the mean Word2Vec word embeddings. It has a balanced accuracy score of `0.407`.
-
-The baseline model - while being very large (76k+ features) and requiring significantly more memory and processing power to analyse -- delivered the better overall balanced accuracy score compared to the alternative model. To its credit, the alternative model was 20 times smaller (about 4,400 features) and could still produce a reasonably close score compared to the baseline model.
-
-Our final choice of model was the baseline model due to its superior scores, which included balanced accuracy and F1 scores, and micro-average AUC scores.
+Our final choice of model was the baseline model due to its better balanced accuracy, balanced F1, and micro-average AUC scores.
 
 For completeness, we made predictions using both the baseline and alternative model and submitted them to Kaggle to obtain the multi-loss function scores.
 
