@@ -67,7 +67,7 @@ Capstone: Classifying clinically actionable genetic mutations
 ```
 ---
 
-## Data Cleaning and EDA
+## Notebook 1: Data Cleaning and EDA
 
 We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values which had to be replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
 
@@ -87,7 +87,7 @@ The following are the findings from preliminary EDA:
 - Outputs: train_clean.csv, test_clean.csv
 ---
 
-## Pre-processing and EDA
+## Notebook 2: Pre-processing and EDA
 
 The pre-processing of the clean data began with converting the clinical text to lower case and removing all punctuation.
 
@@ -107,7 +107,9 @@ We performed some additional EDA on the pre-processed text in the form of a Word
 - Outputs: train_prep.csv, test_prep.csv
 ---
 
-## Baseline Model
+## Notebook 3: Baseline Model
+
+This notebook contains code to establish a baseline model that can address our problem statement of having an accuracy that is at least 10% better than the baseline accuracy of `0.287`.
 
 The pre-processed training dataset was split into predictor (X) and target (y) dataframes. From the predictor dataframe we performed a train-test-split to create a smaller (inner) training and validation dataset based on the default 75% size for the inner training dataset.
 
@@ -117,31 +119,74 @@ After combining these word counts with the dummy columns created earlier during 
 
 Given that our datasets were highly imbalanced, we opted to use the adaptive sampling (ADASYN) technique to selectively oversample the 3 least frequent classes such that they had 100 samples each. We took care to generate new samples only in the training dataset to ensure that our eventual model generalises as well as possible to unseen data.
 
-We now dealt with the issue of having too many features, which would most certainly lead to overfitting and long model training times. We scaled the data using StandardScaler, and then applied principle component analysis (PCA) for dimensionality reduction. After less than two minutes, the number of features had been reduced to the number of samples, i.e. just 2,678.
+We now dealt with the issue of having too many features, which would most certainly lead to overfitting and long model training times. We scaled the data using StandardScaler, and then applied principle component analysis (PCA) for dimensionality reduction. After less than two minutes, the number of features had been reduced to the number of samples, i.e. just 2,678. Upon closer analysis of the cumulative explained variance as the number of principle components increased, we discovered that just 1,800 or so of the components would account for nearly 100% of all the explained variance. To further mitigate the issue of overfitting, we further reduced the number of features in our datasets to just the first 1,800 of the principle components.
+
+We evaluated a broad range of multi-class classifiers -- decision tree, Gaussian Naive Bayes, Extra Trees, K-nearest Neighbours, a two hidden layer forward neural network, support vector classifier, random forest, ADABoost and multinomial logistic regression. To find the optimal parameters for each of these classifier within a reasonable amount of time (less than 4 hrs), we used the RandomisedSearchCV to find the best parameters for each based on the cross-validated accuracy score on the training dataset.
+
+We then ranked the final classifiers based on their balanced (weighted) accuracy scores for the *validation dataset*, as we sought to find the best classifier that was the least overfitted. This was found to be the logistic regression classifier with a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`. Our baseline model therefore consisted of a Logistic Regression Classifier based on TfidfVectorizer weighted word counts.
+
+We performed additional analysis of the baseline model by obtaining the top 5 more 'predictive' principle components and their respective coefficient values, for each of the 9 classes. As expected, very few principle components impacted more than one class. The ROC curves for each class, and a normalised confusion matrix showed us that our baseline model had done a reasonably good job at making accurate predictions. We also compared the frequency distributions between the actual classes and the predicted ones, showing that the relative differences in class frequency had been mostly preserved.
+
+The baseline model was then used to generate predictions for the testing dataset, so that they could be submitted for Kaggle scoring.
 
 - Inputs: train_prep.csv, test_prep.csv
 - Output: test_pred.csv
 
 ---
 
-## Alternative Model
+## Notebook 4: Alternative Model
 
+This notebook contains code to find an alternative model based on static word embeddings that outperforms the baseline model in terms of the balanced accuracy, balanced F1 and micro-average AUC scores.
 
+A word embedding is a dense vector representation of words that capture their meaning in some way. Word embeddings are an improvement over simpler word encoding schemes (like TfidfVectorizer) that result in large and sparse vectors that describe documents but not the meaning of the words.
 
+Similar to the baseline model, the pre-processed training dataset was split into predictor (X) and target (y) dataframes.
 
+We then load/generate three static word embeddings to see if we can get better classification results:
 
+- A smaller set of GloVe embeddings (which we call 'glove_small') that are based on based on Wikipedia 2015 and Gigaword 5th Edition (https://catalog.ldc.upenn.edu/LDC2011T07). Global Vectors for Word Representation (GloVe) are pre-trained word embeddings created by the Stanford Natural Language Processing Group and available at https://nlp.stanford.edu/projects/glove/.
+- A larger set of GloVe embeddings (which we call 'glove_big') that are based on Common Crawl (https://commoncrawl.org/)
+- Our own word embeddings created by training Word2Vec (from nltk) on all the given text in the training dataset, which we call 'w2v'. It is limited to 100 dimensions per sample text.
+
+The word embeddings above represent the superset of all possible embeddings to draw from. To prepare the actual word embeddings that are specifically relevant to our clinical text, we define two 'embedding vectorizers':
+
+- MeanEmbeddingVectorizer: takes the mean of all the 'glove_small' vectors corresponding to individual words
+- TfidfEmbeddingVectorizer takes the mean of all the 'glove_small' vectors corresponding to individual words weighted based on each word's inverse document frequency.
+
+The combination of 3 static word embeddings and 2 embedding vectorizers gave us a total of 3 x 2 = 6 possible combinations to choose from. To select the best combination, we defined each of the 6 combinations as a pipeline with an identical Extra Trees Classifier and calculated the 3-fold cross-validated mean accuracy score for each pipeline based on all the given clinical text in the combined training and validation dataset.
+
+The result was that the mean Word2Vec word embeddings approach gave the best performance.
+
+From the predictor dataframe we performed a train-test-split to create a smaller (inner) training and validation dataset based on the default 75% size for the inner training dataset.
+
+We used the mean Word2Vec word embeddings to fit the training dataset, and them to then transform the training, validation and testing datasets accordingly. The end result are word embeddings that have just 100 features for each sample. After combining these word embeddings with the dummy columns created earlier during pre-processing, we have a total of 4,422 features.
+
+We used ADASYN in the same was as the baseline model, to perform selective oversampling. The data was then scaled using StandardScaler, before we performed PCA to reduce the number of features to be the same as the number of samples, i.e. 2,675. An examination of the cumulative explained variance showed us that we could just use the first 2,300 features or so to retain about 100% of the explained variance.
+
+As this stage, we followed the same process as the baseline model by using RandomizedSearchCV to find the optimal values for the same set of candidate multi-class classifiers.
+
+We again ranked the final classifiers based on their balanced (weighted) accuracy scores for the *validation dataset*, and found that the best performing classifier (which we deemed to be our 'alternative' model) was our forward neural network (FNN) with a balanced accuracy score of `0.393`, balanced F1 score of `0.415` and a micro-average AUC score of `0.713`.
+
+To perform additional analysis of our alternative model, we had to first redefine the FNN based on the optimal parameters found by the RandomizedSearchCV. We introduced an early stopping callback to determine if the FNN could be finetuned further in terms of the number of training epochs. We discovered that the training stopped very early -- at the end of epoch 2.
+
+The ROC curves for each class, and a normalised confusion matrix showed us that our alternative model had done a somewhat poorer job at making predictions on the validation dataset, compared to the baseline model. We also compared the frequency distributions between the actual classes and the predicted ones, showing that the relative differences in class frequency did not correspond very well between the actual and predicted values for the validation dataset.
+
+It was therefore clear that our final model ought to be the baseline model due to its better balanced accuracy, balanced F1 and micro-average AUC scores.
+
+The alternative model was then used to generate predictions for the testing dataset, so that they could be submitted for Kaggle scoring.
 
 - Inputs: train_prep.csv, test_prep.csv
 - Output: test_pred.csv
 
 ---
 
-## Kaggle Submission
+## Notebook 5: Kaggle Submission
 
+This notebook contains the code to format the predictions based on the testing dataset, to the format required for Kaggle submission at https://www.kaggle.com/c/msk-redefining-cancer-treatment/submit.
 
+The predictions for the testing dataset created by either the baseline or alternative model was loaded and formatted to meet the submission template requirements for the Kaggle competition.
 
-
-
+The baseline and alternative models achieved private KGI scores (representing multi-class loss) of 22.657 and 30.947 respectively.
 
 - Input: test_pred.csv
 - Output: submission.csv
