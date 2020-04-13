@@ -17,9 +17,7 @@ The classifier's performance will be measured by the following:
 
 Once sequenced, a cancer tumor can be found to have thousands of genetic mutations (or variations). The challenge is distinguishing the mutations that contribute to tumor growth versus those that do not. This interpretation of genetic mutations is currently done manually and is very time consuming. A clinical pathologist needs to manually review and classify every single genetic mutation based on evidence from text-based clinical literature. The goal of this capstone project is to develop a classifier that can help with automatic classification - this will speed up the classification process and lead to more timely interventions for cancer patients.
 
-We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
-
-Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns.
+We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. Pre-processing was performed by performing parts-of-speech (POS) tagging on the words in the clinical text - time-consuming lemmatisation of the text was done by the NLTK WordNet lemmatiser based on these POS tags to achieve more meaningful output. One-hot encoding was then performed on the gene and variation columns.
 
 For the **baseline model**, we first created (inner) training and validation datasets from Kaggle's training dataset, which left us with three datasets for training, validation and testing. For each of these three datasets, we then generated weighted word counts, performed oversampling, data scaling and feature reduction through the use of Principle Component Analysis (PCA).
 
@@ -58,8 +56,8 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ training_variants.txt
 |   |__ workflow.jpg
 |   |__ scores
-|       |__ kaggle_score_alternative_20200406.jpg
-|       |__ kaggle_score_baseline_20200406.jpg
+|       |__ kaggle_score_altmodel_20200413.jpg
+|       |__ kaggle_score_basemodel_20200413.jpg
 |__ check-ins
 |   |__ Part_1_Lightning_Talk.docx
 |   |__ Part_2_README.md
@@ -71,6 +69,8 @@ Capstone: Classifying clinically actionable genetic mutations
 
 ## Data Cleaning and EDA
 
+We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values which had to be replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
+
 The following are the findings from preliminary EDA:
 - The length of the descriptive text (in the training dataset) has a right-skewed distribution with mean of approx. 64,000 characters and a maximum length of approx. 526,000 characters
 - The top 3 mentioned genes are:
@@ -81,25 +81,70 @@ The following are the findings from preliminary EDA:
   - Truncating mutations: a change in DNA that truncates (or shortens) a protein.
   - Deletions: a mutation where a part of a chromosome or a sequence of DNA is left out during DNA replication.
   - Amplification: a mutation that involves an increase in the number of copies of a gene; gene amplification is common in cancer cells.
-- WordCloud and Histogram of lemmatised word frequencies reveals that there are many "common" words that may need to be removed (i.e. treated as additional stopwords). The challenge is how to find an existing curated list of such words instead of spotting words in a haphazard manner.
+- The baseline accuracy was determined to be 0.287, which is the proportion of the data points having the majority class of '7'. Thus our models would need to have an accuracy minimally perform better than this baseline accuracy.
 
+- Inputs: training_text.txt, training_variants.txt, test_text.csv, test_variants.csv
+- Outputs: train_clean.csv, test_clean.csv
 ---
 
-## Pre-processing
+## Pre-processing and EDA
 
-<to be written>
+The pre-processing of the clean data began with converting the clinical text to lower case and removing all punctuation.
 
+Word lemmatisation using the Wordnet lemmatiser was then performed on the clinical text, which is the process of converting each word into its base form. Lemmatisation considers the context and converts the word into its meaningful base form. Wordnet is a publicly available lexical database for the English language.
+
+To improve the results of the lemmatisation, we used NLTK's parts-of-speech (POS) tagging to produce inputs to the lemmatiser. We also specified a list of stopwords that the lemmatiser should ignore as they were found to be very common in the text but have very little impact on the classification of the variations.
+
+The complete lemmatisation of the training and testing datasets took a long time -- approx. 8 h and 15 min.
+
+Following the lemmatisation, one-hot encoding was performed on the combined training and testing datasets to produce more than 4,300 dummy columns.
+
+A deeper examination of the correlations between the dummy columns did not reveal any strong inter-correlations among them. The variation 'class' appeared to have stronger correlations with genes than with variations.
+
+We performed some additional EDA on the pre-processed text in the form of a WordCloud and histogram of the lemmatised word frequencies. These revealed that there are many "common" words that can be removed (i.e. treated as additional stopwords).
+
+- Inputs: train_clean.csv, test_clean.csv
+- Outputs: train_prep.csv, test_prep.csv
 ---
 
 ## Baseline Model
 
-<to be written>
+The pre-processed training dataset was split into predictor (X) and target (y) dataframes. From the predictor dataframe we performed a train-test-split to create a smaller (inner) training and validation dataset based on the default 75% size for the inner training dataset.
+
+We fit the sklearn TfidfVectorizer on the training dataset and used it to produce weighted word counts for the clinical text in the training, validation and testing datasets. The number of columns increased significantly from approx. 4,300 to just over 72,000.
+
+After combining these word counts with the dummy columns created earlier during pre-processing, the number of columns across the datasets has risen to about 77,000.
+
+Given that our datasets were highly imbalanced, we opted to use the adaptive sampling (ADASYN) technique to selectively oversample the 3 least frequent classes such that they had 100 samples each. We took care to generate new samples only in the training dataset to ensure that our eventual model generalises as well as possible to unseen data.
+
+We now dealt with the issue of having too many features, which would most certainly lead to overfitting and long model training times. We scaled the data using StandardScaler, and then applied principle component analysis (PCA) for dimensionality reduction. After less than two minutes, the number of features had been reduced to the number of samples, i.e. just 2,678.
+
+- Inputs: train_prep.csv, test_prep.csv
+- Output: test_pred.csv
 
 ---
 
 ## Alternative Model
 
-<to be written>
+
+
+
+
+
+- Inputs: train_prep.csv, test_prep.csv
+- Output: test_pred.csv
+
+---
+
+## Kaggle Submission
+
+
+
+
+
+
+- Input: test_pred.csv
+- Output: submission.csv
 
 ---
 
