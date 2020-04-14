@@ -73,17 +73,14 @@ This notebook contains code for data cleaning and EDA.
 
 We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values which had to be replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
 
-The following are the findings from preliminary EDA:
-- The length of the descriptive text (in the training dataset) has a right-skewed distribution with mean of approx. 64,000 characters and a maximum length of approx. 526,000 characters
-- The top 3 mentioned genes are:
-  - BRCA1: BRCA1 is a human tumor suppressor gene and is responsible for repairing DNA. BRCA mutations increase the risk for breast cancer.
-  - TP53: The tumour protein 53 gene prevents cancer formation and functions as a tumour suppressor; there is some evidence (albeit controversial) that links TP53 mutations and cancer.
-  - EGFR: Mutations that lead to the overexpression of the Epidermal growth factor receptor (EGFR) protein have been associated with a number of cancers.
-- The top 3 mentioned variations are:
-  - Truncating mutations: a change in DNA that truncates (or shortens) a protein.
-  - Deletions: a mutation where a part of a chromosome or a sequence of DNA is left out during DNA replication.
-  - Amplification: a mutation that involves an increase in the number of copies of a gene; gene amplification is common in cancer cells.
-- The baseline accuracy was determined to be `0.287`, which is the proportion of the data points having the majority class of '7'. Thus our models would need to have an accuracy minimally perform better than this baseline accuracy.
+Our EDA consist of histograms and boxplots, and reveal the following:
+- Highly imbalanced classes: classes 4 and 7 alone take up almost 50% of all classes found in the training set. We will need to deal with imbalanced classes before we attempt to fit our candidate classifiers to the training data.
+- Right-skewed distribution of clinical text lengths: the mean length is approx. 64k characters long, while the maximum length is 526k characters long.
+- Clinical text length: all the classes have outliers in terms of the clinical text lengths - class 7 in particular has a large number of extreme outliers, including the maximum length (approx. 526k characers long).
+- The most frequently occurring genes provided in the training dataset were linked to breast cancer (BRCA1), tumour protein 52 (TP53) and the epidermal growth factor receptor (EGFR).
+- The most frequently occurring variations provided in the training dataset were general categories of variations, i.e. truncating mutations, deletions, amplifications, fusions and overexpressions.
+
+The baseline accuracy was determined to be `0.287`, which is the proportion of the data points having the majority class of '7'. Thus our models would need to have an accuracy minimally perform better than this baseline accuracy.
 
 - Inputs: training_text.txt, training_variants.txt, test_text.csv, test_variants.csv
 - Outputs: train_clean.csv, test_clean.csv
@@ -105,7 +102,7 @@ Following the lemmatisation, one-hot encoding was performed on the combined trai
 
 A deeper examination of the correlations between the dummy columns did not reveal any strong inter-correlations among them. The variation 'class' appeared to have stronger correlations with genes than with variations.
 
-We performed some additional EDA on the pre-processed text in the form of a WordCloud and histogram of the lemmatised word frequencies. These revealed that there are many "common" words that can be removed (i.e. treated as additional stopwords).
+We performed some additional EDA on the pre-processed text in the form of a WordCloud and histogram of the lemmatised word frequencies. These revealed that there are many "common" words (e.g. "protein", "gene", "variant", "domain") that can be removed in future iterations of the text lemmatisation, by treating them as additional stopwords.
 
 - Inputs: train_clean.csv, test_clean.csv
 - Outputs: train_prep.csv, test_prep.csv
