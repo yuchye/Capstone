@@ -83,7 +83,7 @@ The following are the findings from preliminary EDA:
   - Truncating mutations: a change in DNA that truncates (or shortens) a protein.
   - Deletions: a mutation where a part of a chromosome or a sequence of DNA is left out during DNA replication.
   - Amplification: a mutation that involves an increase in the number of copies of a gene; gene amplification is common in cancer cells.
-- The baseline accuracy was determined to be 0.287, which is the proportion of the data points having the majority class of '7'. Thus our models would need to have an accuracy minimally perform better than this baseline accuracy.
+- The baseline accuracy was determined to be `0.287`, which is the proportion of the data points having the majority class of '7'. Thus our models would need to have an accuracy minimally perform better than this baseline accuracy.
 
 - Inputs: training_text.txt, training_variants.txt, test_text.csv, test_variants.csv
 - Outputs: train_clean.csv, test_clean.csv
@@ -239,18 +239,18 @@ Kaggle website (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data)
 
 |Feature|Type|Dataset|Description|
 |---|---|---|---|
-|**ID**|*int64*|training_text|The id of the row used to link the clinical evidence to the genetic mutation.|
-|**Text**|*object*|training_text|The clinical evidence used to classify the genetic mutation.|
-|**ID**|*int64*|training_variants|The id of the row used to link the mutation to the clinical evidence.|
-|**Gene**|*object*|training_variants|The gene where this genetic mutation is located.|
-|**Variation**|*object*|training_variants|The amino acid change for this mutation.|
-|**Class**|*int64*|training_variants|The class (1 to 9) this genetic mutation has been classified on.|
-|**ID**|*int64*|test_text|The id of the row used to link the clinical evidence to the genetic mutation.|
-|**Text**|*object*|test_text|The clinical evidence used to classify the genetic mutation.|
-|**ID**|*int64*|test_variants|The id of the row used to link the mutation to the clinical evidence.|
-|**Gene**|*object*|test_variants|The gene where this genetic mutation is located.|
-|**Variation**|*object*|test_variants|The amino acid change for this mutation.|
-|**Class**|*int64*|test_variants|The class (1 to 9) this genetic mutation has been classified on.|
+|**ID**|*int64*|training_text.txt|The id of the row used to link the clinical evidence to the genetic mutation.|
+|**Text**|*object*|training_text.txt|The clinical evidence used to classify the genetic mutation.|
+|**ID**|*int64*|training_variants.txt|The id of the row used to link the mutation to the clinical evidence.|
+|**Gene**|*object*|training_variants.txt|The gene where this genetic mutation is located.|
+|**Variation**|*object*|training_variants.txt|The amino acid change for this mutation.|
+|**Class**|*int64*|training_variants.txt|The class (1 to 9) this genetic mutation has been classified on.|
+|**ID**|*int64*|test_text.csv|The id of the row used to link the clinical evidence to the genetic mutation.|
+|**Text**|*object*|test_text.csv|The clinical evidence used to classify the genetic mutation.|
+|**ID**|*int64*|test_variants.csv|The id of the row used to link the mutation to the clinical evidence.|
+|**Gene**|*object*|test_variants.csv|The gene where this genetic mutation is located.|
+|**Variation**|*object*|test_variants.csv|The amino acid change for this mutation.|
+|**Class**|*int64*|test_variants.csv|The class (1 to 9) this genetic mutation has been classified on.|
 
 ### Risks & Assumptions of Data Sources
 
