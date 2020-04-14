@@ -67,7 +67,9 @@ Capstone: Classifying clinically actionable genetic mutations
 ```
 ---
 
-## Notebook 1: Data Cleaning and EDA
+## Notebook 1: Data Cleaning and Exploratory Data Analysis (EDA)
+
+This notebook contains code for data cleaning and EDA.
 
 We obtained training and testing datasets from Kaggle (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data). These datasets had missing values which had to be replaced appropriately and merged so that the clinical text, genes and variations were combined for easier processing. We observed that the training dataset was highly imbalanced with two classes taking up almost 50% of all classes.
 
@@ -88,6 +90,8 @@ The following are the findings from preliminary EDA:
 ---
 
 ## Notebook 2: Pre-processing and EDA
+
+This notebook contains code for pre-processing the clean data from Notebook 1 and performing additional EDA.
 
 The pre-processing of the clean data began with converting the clinical text to lower case and removing all punctuation.
 
@@ -171,8 +175,6 @@ To perform additional analysis of our alternative model, we had to first redefin
 
 The ROC curves for each class, and a normalised confusion matrix showed us that our alternative model had done a somewhat poorer job at making predictions on the validation dataset, compared to the baseline model. We also compared the frequency distributions between the actual classes and the predicted ones, showing that the relative differences in class frequency did not correspond very well between the actual and predicted values for the validation dataset.
 
-It was therefore clear that our final model ought to be the baseline model due to its better balanced accuracy, balanced F1 and micro-average AUC scores.
-
 The alternative model was then used to generate predictions for the testing dataset, so that they could be submitted for Kaggle scoring.
 
 - Inputs: train_prep.csv, test_prep.csv
@@ -193,17 +195,34 @@ The baseline and alternative models achieved private KGI scores (representing mu
 
 ---
 
-## Conclusions and Recommendations
+## Conclusions
 
-<to be written>
+We have successfully built and trained a classifier to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
 
-### Limitations
+The classifier is a Logistic Regression Classifier that relies on TfidfVectorizer weighted word counts, and has been trained on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of 0.540, balanced F1 score of 0.618 and a micro-average AUC score of 0.760, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of 0.540 is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
 
-<to be written>
+The success of this project means that clinical pathologists have the means to speed up their classification work by using our classifier to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
 
-### Areas for further investigation
+---
 
-<to be written>
+## Recommendations
+
+Based on a comparison of the balanced accuracy, balanced F1 and micro-average AUC scores, it is clear that our final model ought to be the baseline model comprising a Logistic Regression Classifier trained on TfidfVectorizer weighted word counts.
+
+However, overfitting remains a concern even though we have managed to get a reasonably good model through a significant reduction in features, facilitate by PCA.
+
+We would recommend the following to mitigate the issue of overfitting and potentially improve the performance of our model:
+
+1. **Obtain more samples**, especially for imbalanced classes. Instead of having to rely on techniques such as ADASYN to oversample the existing data, it would be better to obtain more samples for the minority classes.
+2. Explore the use of **Long Short-term Memory (LSTM)** units within our neural network classifier. This should intuitively improve the performance of our neural network as there is useful contextual information behind the use of words in each sample's clinical text, especially since the clinical text is very long.
+3. Explore the use of **contextual word embeddings**. The static word embeddings we evaluated (i.e. Word2Vec and GloVe) are generated for each word in the vocabulary. For example, the word "express" would have the same context-free representation in in "express delivery" and "gene express[ion]". In contrast, contextual word embeddings for each word are based on the other mentions of the word in the same clinical text. In particular, it would be beneficial to explore the following:
+
+  - *Bidirectional Encoder Representations from Transformers (BERT)* - BERT is based on a multi-layer bidirectional transformer-encoder where a transformer neural network uses parallel attention layers rather than sequential recurrence. It is trained on the BooksCorpus dataset (800M words) and text passages of English Wikipedia. There is a limit of 1,024 words per document/sentence that BERT can analyse and it is unclear how best to apply BERT to our specific scenario given that the non-empty clinical text are all much longer than 1,024 words.
+  - *BioBERT* - BioBERT is based on the initial BERT language model and pre-trained on PubMed abstracts and PubMed Central (PMC) full-text articles. It is likely to be a good candidate for our problem statement as  BioBERT would have word embeddings relevant to the biomedical literature we have to classify.
+  - *Embedding from Language Models (ELMo)* - ELMo looks at the entire sentence as it assigns each word an embedding. It uses a bidirectional recurrent neural network (RNN) trained on a specific task to create the embeddings. The use of ELMo requires substantial computing and memory resources, which may warrant the use of powerful cloud computing resources from the likes of Amazon Web Services, for example.
+4. **Look up related words** based on the genes and variations given in the Kaggle training and testing datasets, and increase the weights manually in our embeddings or word counts. This look-up could be done via the following:
+  - *API queries to ClinVar*: ClinVar is a freely accessible, public archive of reports of the relationships among human variations and phenotypes, with supporting evidence. ClinVar facilitates access to and communication about the relationships asserted between human variation and observed health status, and the history of that interpretation. The curator of ClinVar - US National Centre for Biotechnology Information (NCBI)’s - provides an application programming interface (API) ((https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#web) that can allow us to retrieve disease and severity information based on specific genes or variations.
+  - *Web scraping of the online Biomedical Entity Search Tool (BEST)* (http://best.korea.ac.kr/): using BEST, we can obtain  entities (diseases, drugs, targets, transcription factors, miRNAs) related to specific genes and variants that we manually provide as inputs; we then adjust the weights of any of these entities that are found in our training dataset.
 
 ---
 
@@ -231,12 +250,13 @@ Kaggle website (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data)
 ### Risks & Assumptions of Data Sources
 
 - Risks:
-    - The models that are created may be overfitted.
+    - The data sources may contain many words that play little/no role in affecting what classification of the clinical text. At present, we have specified only a relatively small number of stopwords that are ignored during the text lemmatisation. The risk is that we continue to retain redundant words that increase the likelihood of overfitting.
+
 
 - Assumptions:
     - The 'Class' feature is not treated as an ordinal value, i.e. a class of 1 is not seen as more or less severe than a class of 2, for example.
     - Linearity: The relationship between the independent and dependent features is linear.
-    - Independence: The errors are independent of one another
-    - Normality:The errors between observed and predicted values (i.e., the residuals of the regression) should be normally distributed.
-    - Equality of Variances: The errors should have roughly consistent pattern (i.e. there should be no disceranble relationshop between the independent features and the errors)
-    - Independence: The independent features are independent of one another
+    - Independence: The errors are independent of one another.
+    - Normality: The errors between observed and predicted values (i.e., the residuals of the regression) should be normally distributed.
+    - Equality of Variances: The errors should have roughly consistent pattern (i.e. there should be no disceranble relationshop between the independent features and the errors).
+    - Independence: The independent features are independent of one another.
