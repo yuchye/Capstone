@@ -43,7 +43,6 @@ Capstone: Classifying clinically actionable genetic mutations
 |__ assets
 |   |__ glove.6B.50d.txt
 |   |__ glove.6B.300d.txt
-|   |__ sample_submission.csv
 |   |__ submission.csv
 |   |__ test_clean.csv
 |   |__ test_pred.csv
@@ -62,7 +61,7 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ Part_1_Lightning_Talk.docx
 |   |__ Part_2_README.md
 |   |__ Part_3_Progress_Report.docx
-|__ Capstone_Presentation.pptx
+|__ Capstone_Presentation.pdf
 |__ README.md
 ```
 ---
@@ -177,7 +176,7 @@ The ROC curves for each class, and a normalised confusion matrix showed us that 
 
 The alternative model was then used to generate predictions for the testing dataset, so that they could be submitted for Kaggle scoring.
 
-- Inputs: train_prep.csv, test_prep.csv
+- Inputs: train_prep.csv, test_prep.csv, glove.6B.50d.txt, glove.6B.300d.txt
 - Output: test_pred.csv
 
 ---
