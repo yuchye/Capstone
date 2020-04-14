@@ -61,6 +61,7 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ Part_1_Lightning_Talk.docx
 |   |__ Part_2_README.md
 |   |__ Part_3_Progress_Report.docx
+|   |__ Part_4_Capstone_Checkin.pptx
 |__ Capstone_Presentation.pdf
 |__ README.md
 ```
