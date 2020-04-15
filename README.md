@@ -173,7 +173,7 @@ Similar to the baseline model, we obtained the top 5 principle components and th
 The following table shows the summary metrics of both the baseline and alternative models:
 
 |Metric|Baseline Model<br>(Logistic Regression with<br>Tfidf word weights)|Alternative Model<br>(Logistic Regression using<br>mean Word2Vec embeddings)|
-|:--|-:-|-:-|
+|:--|--:|--:|
 |Balanced Accuracy Score|0.540169|0.396901|
 |Balanced F1 Score|0.618036|0.442792|
 |Micro-average AUC score|0.759990|0.662609|
