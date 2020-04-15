@@ -193,7 +193,7 @@ This notebook contains the code to format the predictions based on the testing d
 
 The predictions for the testing dataset created by either the baseline or alternative model was loaded and formatted to meet the submission template requirements for the Kaggle competition.
 
-The baseline and alternative models achieved private KGI scores (representing multi-class loss) of 22.657 and 30.947 respectively.
+The baseline and alternative models achieved private KGI scores (representing multi-class loss) of `22.657` and `30.947` respectively.
 
 - Input: test_pred.csv
 - Output: submission.csv
@@ -204,7 +204,7 @@ The baseline and alternative models achieved private KGI scores (representing mu
 
 We have successfully built and trained a classifier to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
 
-The classifier is a Logistic Regression Classifier that relies on TfidfVectorizer weighted word counts, and has been trained on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of 0.540, balanced F1 score of 0.618 and a micro-average AUC score of 0.760, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of 0.540 is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
+The classifier is a Logistic Regression Classifier that relies on TfidfVectorizer weighted word counts, and has been trained on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
 
 The success of this project means that clinical pathologists have the means to speed up their classification work by using our classifier to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
 
