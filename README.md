@@ -23,7 +23,7 @@ For the **baseline model**, we first created (inner) training and validation dat
 
 Hyperparameter tuning (using a randomised search) was performed to find the best classifier for the training dataset amongst a number of candidate classifiers. The baseline model was chosen to be a Logistic Regression Classifier based on the weighted Tfidf word counts, as it had the highest balanced accuracy score of `0.540`, on the validation dataset. It also achieved the aim of exceeding the baseline accuracy of `0.287` by at least 10%.
 
-We then explored two static word embeddings (vectors) as a potential **alternative model** -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. Our own mean Word2Vec embeddings were chosen as it had the highest cross-validated accuracy score on the validation dataset. Following the same process above that was used to identify the baseline model, we eventually determined that the best alternative model was a Forward Neural Network based on the mean Word2Vec word embeddings. It has a balanced accuracy score of `0.393`.
+We then explored two static word embeddings (vectors) as a potential **alternative model** -- these included the Global Vectors for Word Representation (GloVe) and our own word embeddings created by training NLTK's Word2Vec on all the given text in the training dataset. Our own mean Word2Vec embeddings were chosen as it had the highest cross-validated accuracy score on the validation dataset. Following the same process above that was used to identify the baseline model, we eventually determined that the best alternative model was also a Logistic Regression Classifier, but based on the mean Word2Vec word embeddings. It had a balanced accuracy score of `0.397`.
 
 Our final choice of model was the baseline model due to its better balanced accuracy, balanced F1, and micro-average AUC scores.
 
@@ -166,11 +166,19 @@ We used ADASYN in the same was as the baseline model, to perform selective overs
 
 As this stage, we followed the same process as the baseline model by using RandomizedSearchCV to find the optimal values for the same set of candidate multi-class classifiers.
 
-We again ranked the final classifiers based on their balanced (weighted) accuracy scores for the *validation dataset*, and found that the best performing classifier (which we deemed to be our 'alternative' model) was our forward neural network (FNN) with a balanced accuracy score of `0.393`, balanced F1 score of `0.415` and a micro-average AUC score of `0.713`.
+We again ranked the final classifiers based on their balanced (weighted) accuracy scores for the *validation dataset*, and found that the best performing classifier (which we deemed to be our 'alternative' model) was a Logistic Regression Classifier with a balanced accuracy score of `0.397`, balanced F1 score of `0.443` and a micro-average AUC score of `0.663`.
 
-To perform additional analysis of our alternative model, we had to first redefine the FNN based on the optimal parameters found by the RandomizedSearchCV. We introduced an early stopping callback to determine if the FNN could be finetuned further in terms of the number of training epochs. We discovered that the training stopped very early -- at the end of epoch 2.
+Similar to the baseline model, we obtained the top 5 principle components and their coefficients for each of the 9 classes. Once again, we saw that very few principle components impacted more than one class. The ROC curves for each class, and a normalised confusion matrix showed us that our alternative model did a poorer job at making predictions on the validation dataset, compared to the baseline model. We compared the frequency distributions between the actual classes and the predicted ones, showing that the relative differences in class frequency did not correspond well between the actual and predicted values for the validation dataset.
 
-The ROC curves for each class, and a normalised confusion matrix showed us that our alternative model had done a somewhat poorer job at making predictions on the validation dataset, compared to the baseline model. We also compared the frequency distributions between the actual classes and the predicted ones, showing that the relative differences in class frequency did not correspond very well between the actual and predicted values for the validation dataset.
+The following table shows the summary metrics of both the baseline and alternative models:
+
+|Metric|Baseline Model<br>(Logistic Regression with<br>Tfidf word weights)|Alternative Model<br>(Logistic Regression using<br>mean Word2Vec embeddings)|
+|:--|---|---|
+|Balanced Accuracy Score|0.540169|0.396901|
+|Balanced F1 Score|0.618036|0.442792|
+|Micro-average AUC score|0.759990|0.662609|
+
+Based on the scores, it was clear that our baseline model should be chosen as our final model to address our problem statement.
 
 The alternative model was then used to generate predictions for the testing dataset, so that they could be submitted for Kaggle scoring.
 
