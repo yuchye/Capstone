@@ -2,11 +2,11 @@
 
 ## Problem Statement
 
-To build and train a classifier to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations, so that clinical pathologists can review the medical literature to make the classification, faster and with less effort.
+To build and train a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations, so that clinical pathologists can review the medical literature to make the classification, faster and with less effort.
 
 Fast and accurate classification of cancer mutation annotations can help to speed up diagnosis and identification of the correct treatment to deliver to affected patients.
 
-The classifier's performance will be measured by the following:
+The model's performance will be measured by the following:
 - **Balanced accuracy score**: this metric caters for class imbalance and is the average of recall obtained on each variation class. This is especially important in our context, because we seek high recall (i.e. sensitivity) to ensure that we carry out the appropriate interventions in a timely manner, based on the  variation classification. The goal is to achieve a balanced accuracy score that is at least 10% better than the baseline accuracy, which is defined as the proportion of the majority variant class in the given training set.
 - **Balanced F1 score**: this considers both the precision and recall, and is weighted by the number of true instances of each variation class to account for class imbalance.
 - **Micro-average Area under Curve (AUC) score**: this metric looks at the average area under the Receiver Operating Characteristic (ROC) curve for each of the nine classes. The average is taken by the sum of counts to obtain cumulative metrics (true-positives, false-negatives, true-negatives and false-positives) across all classes, and then calculating the AUC.
@@ -202,16 +202,22 @@ The baseline and alternative models achieved private KGI scores (representing mu
 
 ## Conclusions
 
-We have successfully built and trained a classifier to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
+We have successfully built and trained a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
 
-The classifier is a Logistic Regression Classifier that relies on TfidfVectorizer weighted word counts, and has been trained on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
+The model comprises a Logistic Regression Classifier that has been trained on TfidfVectorizer weighted word counts based on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
 
-The success of this project means that clinical pathologists have the means to speed up their classification work by using our classifier to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
+The success of this project means that clinical pathologists have the means to speed up their classification work by using our model to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
 
 The following are the limitations of our work:
-- **Imbalanced classes**. We are presented with a multi-class scenario with imbalanced classes; just two of the most frequent classes account for ~50% of all the classes. We ended up oversampling the data to try and mitigate the class imbalance, which may have resulted in some model inaccuracies.
-- **Our clinical text is difficult to classify effectively**. Understanding the context of words is key but it is not easy to find related word embeddings. We settled for using static word embeddings which do not take into account the use of words within our specific context, and obtained relatively poor performance in our alternative model.
+- **Character replacement approach**. Numbers, dashes and Greek characters are currently being removed during pre-processing – some of these may be important; examples are:
+  - 'E-cadherin' replaced with 'e cadherin'
+  - ''β-catenin' replaced with 'catenin'
+  - 'TP53' replaced with 'tp'
+- **Subjective oversampling**. We were presented with a multi-class scenario with imbalanced classes; just two of the most frequent classes account for ~50% of all the classes. We used ADASYN to oversample only the three most infrequent classes such that these classes ended up with a number of samples (i.e. about 100) that was deemed to be reasonable in relation to the number of samples for the majority class (i.e. class 7). Different approaches for the oversampling could potentially be weaved into the RandomizedSearchCV process to see if a more optimal approach exists.
+- **Lack of biomedical context**. Our baseline model used the standard Tfidf approach to come up with weighted word frequencies that did not place emphasis on certain words that might carry special or significant meaning in the area of cancer mutations. Our alternative model used general-purpose word embeddings which likewise may not fully recognise the relatednesss of certain biomedical keywords in the cancer mutation domain.
 - **Limited processing power and memory**: Our local PC used for the whole project consists of an Intel i7-8565U CPU, 16GB of RAM and Windows 10 operating system. The on-board Intel UHD Graphics 620 GPU cannot be used to accelerate deep learning (e.g. neural network training). In some cases, we had to down-scale the processing involved by changing our parameter values accordingly (e.g. 3-fold cross validation instead of 5-fold, setting no concurrent jobs to conserve memory and only partial oversampling) to ensure that we could complete processing within a reasonable timeframe. It is conceivable that the availability of higher-end CPUs (or GPUs), and more memory would lead to better model training.
+
+As it was not possible to understand what the 9 classes meant, there was no way to validate the predictions through other means such as literature review. As such, it is recommended that the clinical pathologist validate the predictions independently to mitigate the risk of administering treatments or proposing clinical trials based on potentially incorrect predictions.
 
 ---
 
@@ -257,16 +263,11 @@ Kaggle website (https://www.kaggle.com/c/msk-redefining-cancer-treatment/data)
 |**Variation**|*object*|test_variants.csv|The amino acid change for this mutation.|
 |**Class**|*int64*|test_variants.csv|The class (1 to 9) this genetic mutation has been classified on.|
 
-### Risks & Assumptions of Data Sources
+### Assumptions of Data Sources
 
-- Risks:
-    - The data sources may contain many words that play little/no role in affecting what classification of the clinical text. At present, we have specified only a relatively small number of stopwords that are ignored during the text lemmatisation. The risk is that we continue to retain redundant words that increase the likelihood of overfitting.
-
-
-- Assumptions:
-    - The 'Class' feature is not treated as an ordinal value, i.e. a class of 1 is not seen as more or less severe than a class of 2, for example.
-    - Linearity: The relationship between the independent and dependent features is linear.
-    - Independence: The errors are independent of one another.
-    - Normality: The errors between observed and predicted values (i.e., the residuals of the regression) should be normally distributed.
-    - Equality of Variances: The errors should have roughly consistent pattern (i.e. there should be no disceranble relationshop between the independent features and the errors).
-    - Independence: The independent features are independent of one another.
+- The 'Class' feature is not treated as an ordinal value, i.e. a class of 1 is not seen as more or less severe than a class of 2, for example.
+- Linearity: The relationship between the independent and dependent features is linear.
+- Independence: The errors are independent of one another.
+- Normality: The errors between observed and predicted values (i.e., the residuals of the regression) should be normally distributed.
+- Equality of Variances: The errors should have roughly consistent pattern (i.e. there should be no disceranble relationshop between the independent features and the errors).
+- Independence: The independent features are independent of one another.
