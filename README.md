@@ -33,7 +33,9 @@ For completeness, we made predictions using both the baseline and alternative mo
 
 ## Directory Structure
 
-Note: Due to 100MB file size restrictions on Git, the full set of 'assets' files have been uploaded to Google Drive and can be found at  https://drive.google.com/open?id=1XDBxo_ghCZKzoBmv94Mf1m7-XbdwPqQo.
+Note: Due to 100MB file size restrictions on Git:
+- The full set of 'assets' files can be found at: https://drive.google.com/drive/folders/1XDBxo_ghCZKzoBmv94Mf1m7-XbdwPqQo?usp=sharing
+- The full set of 'web' files can be found at: https://drive.google.com/drive/folders/1CDgdZAnKjPFhyzQUaEEaRqrBMpinJSPr?usp=sharing
 
 ```
 Capstone: Classifying clinically actionable genetic mutations
@@ -43,6 +45,18 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ 03_Baseline_Model.ipynb
 |   |__ 04_Alternative_Model.ipynb
 |   |__ 05_Kaggle_Submission.ipynb
+|__ web
+|   |__ backend_pythonanywhere
+|   |   |__ baseline_clf.joblib
+|   |   |__ model_cols.csv
+|   |   |__ pca.joblib
+|   |   |__ service.py
+|   |   |__ ss.joblib
+|   |   |__ yuchye_pythonanywhere_com_wsgi.py
+|   |__ frontend_wix
+|       |__ home_page.js
+|       |__ home_page_screenshot.jpg
+|       |__ serviceModule.jsw
 |__ assets
 |   |__ README.txt
 |   |__ glove.6B.50d.txt
@@ -196,6 +210,30 @@ The baseline and alternative models achieved private KGI scores (representing mu
 
 - Input: test_pred.csv
 - Output: submission.csv
+
+---
+
+## Web Deployment
+
+We deployed a web-based front-end at wix.com (https://yuchye.wixsite.com/dsi-13-capstone) to enable dynamic generation of predictions based on gene, variation and clinical text input parameters.
+
+There are three files found in the web/frontend_wix folder:
+- home_page.js: this is the JavaScript code for the home page. The code is primarily for the button1_click event which is triggered when the 'Obtain Variation Class' button is clicked.
+- home_page_screenshot.jpg: this is a screenshot of the home page.
+- serviceModule.jsw: this is the wix back-end code that is invoked when the 'Obtain Variation Class' button is clicked
+
+The front-end is tied to a back-end end-point hosted at PythonAnywhere (https://yuchye.pythonanywhere.com/predict-class) which accepts HTTP POST requests from the front-end. A virtual environment was created in which a Flask web application is run. The back-end must be running for the front-end to work properly.
+
+A PythonAnywhere back-end was set up with 3GB hard disk capacity. The following files are included in the web/backend_pythonanywhere folder:
+- baseline_clf.joblib: this is a joblib 'dump' file of the fitted baseline model (logistic regression classifier) created from Notebook 3, which is referenced in the service.py file
+- model_cols.csv: this is a CSV file created from Notebook 3 that contains all the features that are used for model creation and training
+- pca.joblib: this is the joblib 'dump' file of the fitted PCA (Principle Component Analysis) object created from Notebook 3
+- service.py: this is the Flask web main application file which defines a handler for incoming POST requests to the end-point.
+- ss.joblib: this is the joblib 'dump' file of the fitted StandardScaler object created from Notebook 3
+- yuchye_pythonanywhere_com_wsgi.py: this is the configuration file for the back-end website.  
+The files were transferred via SFTP to the bash shell that runs on the PythonAnywhere back-end.
+
+Execution time is up to approx. 10 seconds for long clinical text.
 
 ---
 

@@ -1,0 +1,24 @@
+import { fetch } from 'wix-fetch';
+
+export function getPrediction(gene, variation, text) {
+
+	console.log("inside function getPrediction");
+	console.log(gene);
+	console.log(variation);
+	console.log(text);
+
+	var post_body = "gene=" + gene +
+		"&variation=" + variation +
+		"&text=" + text;
+
+	// return fetch("https://postman-echo.com/post", {
+	return fetch("https://yuchye.pythonanywhere.com/predict-class", {
+			"method": "post",
+			"headers": {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			"body": post_body
+		})
+		.then(response => response.json())
+		.then(json => json.predicted_class)
+}

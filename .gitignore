@@ -24,3 +24,4 @@ assets/cased_L-12_H-768_A-12/bert_model.ckpt.meta
 assets/cased_L-12_H-768_A-12/vocab.txt
 assets/elmo_vectors_0.csv
 assets/elmo_vectors.pickle
+web/backend_pythonanywhere/pca.joblib
