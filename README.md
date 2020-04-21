@@ -33,8 +33,7 @@ For completeness, we made predictions using both the baseline and alternative mo
 
 ## Directory Structure
 
-Note: Due to 100MB file size restrictions on Git, the full set of 'assets' files have been uploaded to Google Drive and can be found at: 
-`https://drive.google.com/open?id=1XDBxo_ghCZKzoBmv94Mf1m7-XbdwPqQo`
+Note: Due to 100MB file size restrictions on Git, the full set of 'assets' files have been uploaded to Google Drive and can be found at  https://drive.google.com/open?id=1XDBxo_ghCZKzoBmv94Mf1m7-XbdwPqQo.
 
 ```
 Capstone: Classifying clinically actionable genetic mutations
@@ -45,6 +44,7 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ 04_Alternative_Model.ipynb
 |   |__ 05_Kaggle_Submission.ipynb
 |__ assets
+|   |__ README.txt
 |   |__ glove.6B.50d.txt
 |   |__ glove.6B.300d.txt
 |   |__ submission.csv
