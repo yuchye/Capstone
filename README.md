@@ -32,6 +32,10 @@ For completeness, we made predictions using both the baseline and alternative mo
 ---
 
 ## Directory Structure
+
+Note: Due to 100MB file size restrictions on Git, the full set of 'assets' files have been uploaded to Google Drive and can be found at: 
+`https://drive.google.com/open?id=1XDBxo_ghCZKzoBmv94Mf1m7-XbdwPqQo`
+
 ```
 Capstone: Classifying clinically actionable genetic mutations
 |__ code
@@ -57,11 +61,6 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ scores
 |       |__ kaggle_score_altmodel_20200413.jpg
 |       |__ kaggle_score_basemodel_20200413.jpg
-|__ check-ins
-|   |__ Part_1_Lightning_Talk.docx
-|   |__ Part_2_README.md
-|   |__ Part_3_Progress_Report.docx
-|   |__ Part_4_Capstone_Checkin.pptx
 |__ Capstone_Presentation.pdf
 |__ README.md
 ```
