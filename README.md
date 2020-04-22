@@ -11,7 +11,7 @@
 - [Notebook 4: Alternative Model](#Notebook-4-Alternative-Model)
 - [Notebook 5: Kaggle Submission](#Notebook-5-Kaggle-Submission)
 - [Web Deployment](#Web-Deployment)
-- [Limitations](#Limitations)
+- [Limitations and Risks](#Limitations-and-Risks)
 - [Recommendations for Further Work](#Recommendations-for-Further-Work)
 - [Conclusion](#Conclusion)
 - [Data Sources](#Data-Sources)
@@ -262,18 +262,18 @@ Execution time should range between 3 to 10 seconds to come up with a prediction
 
 ---
 
-## Limitations
+## Limitations and Risks
 
 The following are the limitations of our work:
 - **Character replacement approach**. Numbers, dashes and Greek characters are currently being removed during pre-processing – some of these may be important; examples are:
   - 'E-cadherin' replaced with 'e cadherin'
-  - ''β-catenin' replaced with 'catenin'
+  - 'β-catenin' replaced with 'catenin'
   - 'TP53' replaced with 'tp'
 - **Subjective oversampling**. We were presented with a multi-class scenario with imbalanced classes; just two of the most frequent classes account for ~50% of all the classes. We used ADASYN to oversample only the three most infrequent classes such that these classes ended up with a number of samples (i.e. about 100) that was deemed to be reasonable in relation to the number of samples for the majority class (i.e. class 7). Different approaches for the oversampling could potentially be weaved into the RandomizedSearchCV process to see if a more optimal approach exists.
 - **Lack of biomedical context**. Our baseline model used the standard Tfidf approach to come up with weighted word frequencies that did not place emphasis on certain words that might carry special or significant meaning in the area of cancer mutations. Our alternative model used general-purpose word embeddings which likewise may not fully recognise the relatednesss of certain biomedical keywords in the cancer mutation domain.
-- **Limited processing power and memory**: Our local PC used for the whole project consists of an Intel i7-8565U CPU, 16GB of RAM and Windows 10 operating system. The on-board Intel UHD Graphics 620 GPU cannot be used to accelerate deep learning (e.g. neural network training). In some cases, we had to down-scale the processing involved by changing our parameter values accordingly (e.g. 3-fold cross validation instead of 5-fold, setting no concurrent jobs to conserve memory and only partial oversampling) to ensure that we could complete processing within a reasonable timeframe. It is conceivable that the availability of higher-end CPUs (or GPUs), and more memory would lead to better model training.
+- **Limited processing power and memory**: Our local PC used for the whole project consists of an Intel i7-8565U CPU, 16GB of RAM and Windows 10 operating system. The on-board Intel UHD Graphics 620 GPU cannot be used to accelerate deep learning (e.g. neural network training). In some cases, we had to down-scale the processing involved by changing our parameter values accordingly (e.g. 3-fold cross validation instead of 5-fold, setting no concurrent jobs to conserve memory and only partial oversampling) to ensure that we could complete processing within a reasonable timeframe. It is conceivable that the availability of higher-end CPUs (or GPUs), and more memory would lead to faster model training and more thorough model evaluation.
 
-As it was not possible to understand what the 9 classes meant, there was no way to validate the predictions through other means such as literature review. As such, it is recommended that the clinical pathologist validate the predictions independently to mitigate the risk of administering treatments or proposing clinical trials based on potentially incorrect predictions.
+As it was not possible to understand what the 9 classes meant, there was no way for us to independently validate our predictions through literature review. As such, it is recommended that clinical pathologists validate the predictions to mitigate the risk of administering treatments or proposing clinical trials based on potentially incorrect predictions.
 
 ---
 
@@ -296,15 +296,17 @@ We would recommend the following to mitigate the issue of overfitting and potent
   - *API queries to ClinVar*: ClinVar is a freely accessible, public archive of reports of the relationships among human variations and phenotypes, with supporting evidence. ClinVar facilitates access to and communication about the relationships asserted between human variation and observed health status, and the history of that interpretation. The curator of ClinVar - US National Centre for Biotechnology Information (NCBI)’s - provides an application programming interface (API) ((https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#web) that can allow us to retrieve disease and severity information based on specific genes or variations.
   - *Web scraping of the online Biomedical Entity Search Tool (BEST)* (http://best.korea.ac.kr/): using BEST, we can obtain  entities (diseases, drugs, targets, transcription factors, miRNAs) related to specific genes and variants that we manually provide as inputs; we then adjust the weights of any of these entities that are found in our training dataset.
 
-  ---
+---
 
-  ## Conclusion
+## Conclusion
 
-  We have successfully built and trained a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
+We have successfully built and trained a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
 
-  The model comprises a Logistic Regression Classifier that has been trained on TfidfVectorizer weighted word counts based on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
+The model comprises a Logistic Regression Classifier that has been trained on TfidfVectorizer weighted word counts based on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
 
-  The success of this project means that clinical pathologists have the means to speed up their classification work by using our model to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
+The predictions from our model can be incorporated into reports that a medical review panel can use - in conjunction with other inputs such as the patients' medical and treatment histories - to make decisions on treatments or clinical trials that the patient could benefit from.
+
+The success of this project means that clinical pathologists have the means to speed up their classification work by using our model to come up with the predicted variation classes based on available biomedical literature on the mutation. It is expected that pathologists will review the predictions and use them to guide their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions more quickly, if needed.
 
 ---
 
