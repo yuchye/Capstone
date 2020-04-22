@@ -1,5 +1,23 @@
 # Capstone Project - Classifying clinically actionable genetic mutations
 
+## Contents
+
+- [Problem Statement](#Problem-Statement)
+- [Executive Summary](#Executive-Summary)
+- [Directory Structure](#Directory-Structure)
+- [Notebook 1: Data Cleaning and Exploratory Data Analysis (EDA)](#Notebook-1:-Data-Cleaning-and-Exploratory-Data-Analysis-(EDA))
+- [Notebook 2: Pre-processing and EDA](#Notebook-2:-Pre-processing-and-EDA)
+- [Notebook 3: Baseline Model](#Notebook-3:-Baseline-Model)
+- [Notebook 4: Alternative Model](#Notebook-4:-Alternative-Model)
+- [Notebook 5: Kaggle Submission](#Notebook-5:-Kaggle-Submission)
+- [Web Deployment](#Web-Deployment)
+- [Limitations](#Limitations)
+- [Recommendations for Further Work](#Recommendations-for-Further-Work)
+- [Conclusion](#Conclusion)
+- [Data Sources](#Data-Sources)
+
+---
+
 ## Problem Statement
 
 To build and train a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations, so that clinical pathologists can review the medical literature to make the classification, faster and with less effort.
@@ -109,7 +127,7 @@ Word lemmatisation using the Wordnet lemmatiser was then performed on the clinic
 
 To improve the results of the lemmatisation, we used NLTK's parts-of-speech (POS) tagging to produce inputs to the lemmatiser. We also specified a list of stopwords that the lemmatiser should ignore as they were found to be very common in the text but have very little impact on the classification of the variations.
 
-The complete lemmatisation of the training and testing datasets took a long time -- approx. 8 h and 15 min.
+The complete lemmatisation of the training and testing datasets took a long time -- approx. 6 h and 30 min.
 
 Following the lemmatisation, one-hot encoding was performed on the combined training and testing datasets to produce more than 4,300 dummy columns.
 
@@ -143,8 +161,10 @@ We performed additional analysis of the baseline model by obtaining the top 5 mo
 
 The baseline model was then used to generate predictions for the testing dataset, so that they could be submitted for Kaggle scoring.
 
+To facilitate the web deployment of the model, we exported a CSV file ('model_cols.csv') containing the final set of features that were used for the model fitting. We also used the joblib library to 'dump' a binary version of the fitted StandardScaler, PCA and baseline classifier so that we can 'load' them directly into memory in the PythonAnywhere back-end, without having to fit the various objects again to the training data. The commands to export the CSV file and dump the joblib files are left commented in the code as these are intended to be run only once.
+
 - Inputs: train_prep.csv, test_prep.csv
-- Output: test_pred.csv
+- Output: model_cols.csv, ss.joblib, pca.joblib, baseline_clf.joblib, test_pred.csv
 
 ---
 
@@ -217,33 +237,31 @@ The baseline and alternative models achieved private KGI scores (representing mu
 
 We deployed a web-based front-end at wix.com (https://yuchye.wixsite.com/dsi-13-capstone) to enable dynamic generation of predictions based on gene, variation and clinical text input parameters.
 
+### Front-end
+
 There are three files found in the web/frontend_wix folder:
 - home_page.js: this is the JavaScript code for the home page. The code is primarily for the button1_click event which is triggered when the 'Obtain Variation Class' button is clicked.
 - home_page_screenshot.jpg: this is a screenshot of the home page.
 - serviceModule.jsw: this is the wix back-end code that is invoked when the 'Obtain Variation Class' button is clicked
 
-The front-end is tied to a back-end end-point hosted at PythonAnywhere (https://yuchye.pythonanywhere.com/predict-class) which accepts HTTP POST requests from the front-end. A virtual environment was created in which a Flask web application is run. The back-end must be running for the front-end to work properly.
+### Back-end
 
-A PythonAnywhere back-end was set up with 3GB hard disk capacity. The following files are included in the web/backend_pythonanywhere folder:
+The front-end is tied to a back-end end-point hosted at PythonAnywhere (https://yuchye.pythonanywhere.com/predict-class) which accepts HTTP POST requests from the front-end. The back-end comprises a Flask web application run in a virtual environment hosted on a PythonAnywhere server with approx. 3GB disk size. The back-end must be running for the front-end to work properly.
+
+The following files are included in the web/backend_pythonanywhere folder:
 - baseline_clf.joblib: this is a joblib 'dump' file of the fitted baseline model (logistic regression classifier) created from Notebook 3, which is referenced in the service.py file
-- model_cols.csv: this is a CSV file created from Notebook 3 that contains all the features that are used for model creation and training
+- model_cols.csv: this is a CSV file created from Notebook 3 that contains all the features that are used for model creation and training. Our Flask application recreates a dataframe from these features and manually populates them based on the front-end input parameters.
 - pca.joblib: this is the joblib 'dump' file of the fitted PCA (Principle Component Analysis) object created from Notebook 3
 - service.py: this is the Flask web main application file which defines a handler for incoming POST requests to the end-point.
 - ss.joblib: this is the joblib 'dump' file of the fitted StandardScaler object created from Notebook 3
 - yuchye_pythonanywhere_com_wsgi.py: this is the configuration file for the back-end website.  
-The files were transferred via SFTP to the bash shell that runs on the PythonAnywhere back-end.
+The files were transferred via SFTP to the bash shell that runs on the back-end.
 
-Execution time is up to approx. 10 seconds for long clinical text.
+Execution time should range between 3 to 10 seconds to come up with a prediction, depending on the length of the clinical text input.
 
 ---
 
-## Conclusions
-
-We have successfully built and trained a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
-
-The model comprises a Logistic Regression Classifier that has been trained on TfidfVectorizer weighted word counts based on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
-
-The success of this project means that clinical pathologists have the means to speed up their classification work by using our model to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
+## Limitations
 
 The following are the limitations of our work:
 - **Character replacement approach**. Numbers, dashes and Greek characters are currently being removed during pre-processing – some of these may be important; examples are:
@@ -258,7 +276,7 @@ As it was not possible to understand what the 9 classes meant, there was no way 
 
 ---
 
-## Recommendations
+## Recommendations for Further Work
 
 Based on a comparison of the balanced accuracy, balanced F1 and micro-average AUC scores, it is clear that our final model ought to be the baseline model comprising a Logistic Regression Classifier trained on TfidfVectorizer weighted word counts.
 
@@ -276,6 +294,16 @@ We would recommend the following to mitigate the issue of overfitting and potent
 4. **Look up related words** based on the genes and variations given in the Kaggle training and testing datasets, and increase the weights manually in our embeddings or word counts. This look-up could be done via the following:
   - *API queries to ClinVar*: ClinVar is a freely accessible, public archive of reports of the relationships among human variations and phenotypes, with supporting evidence. ClinVar facilitates access to and communication about the relationships asserted between human variation and observed health status, and the history of that interpretation. The curator of ClinVar - US National Centre for Biotechnology Information (NCBI)’s - provides an application programming interface (API) ((https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/#web) that can allow us to retrieve disease and severity information based on specific genes or variations.
   - *Web scraping of the online Biomedical Entity Search Tool (BEST)* (http://best.korea.ac.kr/): using BEST, we can obtain  entities (diseases, drugs, targets, transcription factors, miRNAs) related to specific genes and variants that we manually provide as inputs; we then adjust the weights of any of these entities that are found in our training dataset.
+
+  ---
+
+  ## Conclusion
+
+  We have successfully built and trained a model to classify genetic variations based on an expert-annotated knowledge base of cancer mutation annotations.
+
+  The model comprises a Logistic Regression Classifier that has been trained on TfidfVectorizer weighted word counts based on 75% of the training data provided by Kaggle. It has achieved a balanced accuracy score of `0.540`, balanced F1 score of `0.618` and a micro-average AUC score of `0.760`, based on our validation dataset, which is the remaining 25% of the training data provided by Kaggle. Our classifier has better performance compared to an alternative model using Word2Vec and GloVe static word embeddings. The accuracy score of `0.540` is also at least 10% better than the baseline accuracy of 0.287 which was based on the majority class in our training data.
+
+  The success of this project means that clinical pathologists have the means to speed up their classification work by using our model to come up with the predicted variation classes based on the clinical literature provided. The pathologists can review the predictions and this will help them to make their final classification decisions. The outcome is that patients can receive appropriate follow-up interventions (if needed) more quickly.
 
 ---
 
