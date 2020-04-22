@@ -5,7 +5,7 @@
 - [Problem Statement](#Problem-Statement)
 - [Executive Summary](#Executive-Summary)
 - [Directory Structure](#Directory-Structure)
-- [Notebook 1: Data Cleaning and Exploratory Data Analysis (EDA)](#Notebook-1:-Data-Cleaning-and-Exploratory-Data-Analysis-(EDA))
+- [Notebook 1: Data Cleaning and Exploratory Data Analysis (EDA)](#Notebook-1\:-Data-Cleaning-and-Exploratory-Data-Analysis-(EDA))
 - [Notebook 2: Pre-processing and EDA](#Notebook-2:-Pre-processing-and-EDA)
 - [Notebook 3: Baseline Model](#Notebook-3:-Baseline-Model)
 - [Notebook 4: Alternative Model](#Notebook-4:-Alternative-Model)
