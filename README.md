@@ -64,6 +64,7 @@ Capstone: Classifying clinically actionable genetic mutations
 |   |__ 04_Alternative_Model.ipynb
 |   |__ 05_Kaggle_Submission.ipynb
 |__ web
+|   |__ README.txt
 |   |__ backend_pythonanywhere
 |   |   |__ baseline_clf.joblib
 |   |   |__ model_cols.csv
