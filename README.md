@@ -258,7 +258,8 @@ The following files are included in the web/backend_pythonanywhere folder:
 - service.py: this is the Flask web main application file which defines a handler for incoming POST requests to the end-point.
 - ss.joblib: this is the joblib 'dump' file of the fitted StandardScaler object created from Notebook 3
 - yuchye_pythonanywhere_com_wsgi.py: this is the configuration file for the back-end website.  
-The files were transferred via SFTP to the bash shell that runs on the back-end.
+
+To set up the back-end correctly, the files were transferred via SFTP to the back-end, via a bash shell that can be launched using via the PythonAnywhere console.
 
 Execution time should range between 3 to 10 seconds to come up with a prediction, depending on the length of the clinical text input.
 
