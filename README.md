@@ -245,11 +245,11 @@ We deployed a web-based front-end at wix.com (https://yuchye.wixsite.com/dsi-13-
 There are three files found in the web/frontend_wix folder:
 - home_page.js: this is the JavaScript code for the home page. The code is primarily for the button1_click event which is triggered when the 'Obtain Variation Class' button is clicked.
 - home_page_screenshot.jpg: this is a screenshot of the home page.
-- serviceModule.jsw: this is the wix back-end code that is invoked when the 'Obtain Variation Class' button is clicked
+- serviceModule.jsw: this is the wix back-end code that is invoked when the 'Obtain Variation Class' button is clicked. It issues a JavaScript 'fetch' command to the back-end in the form of a HTTPS POST request with the input parameters entered.
 
 ### Back-end
 
-The front-end is tied to a back-end end-point hosted at PythonAnywhere (https://yuchye.pythonanywhere.com/predict-class) which accepts HTTP POST requests from the front-end. The back-end comprises a Flask web application run in a virtual environment hosted on a PythonAnywhere server with approx. 3GB disk size. The back-end must be running for the front-end to work properly.
+The front-end is tied to a back-end end-point hosted at PythonAnywhere (https://yuchye.pythonanywhere.com/predict-class) which accepts HTTPS POST requests from the front-end. The back-end comprises a Flask web application run in a virtual environment hosted on a PythonAnywhere server with approx. 3GB disk size. The back-end must be running for the front-end to work properly.
 
 The following files are included in the web/backend_pythonanywhere folder:
 - baseline_clf.joblib: this is a joblib 'dump' file of the fitted baseline model (logistic regression classifier) created from Notebook 3, which is referenced in the service.py file
