@@ -47,6 +47,8 @@ Our final choice of model was the baseline model due to its better balanced accu
 
 For completeness, we made predictions using both the baseline and alternative model and submitted them to Kaggle to obtain the multi-loss function scores.
 
+Finally, we deployed the model as a Flask web application hosted on a PythonAnywhere server, with a Wix front-end to allow for the gene, variation and clinical text to be provided as input parameters.
+
 ---
 
 ## Directory Structure
